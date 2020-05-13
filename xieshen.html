@@ -1,0 +1,530 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<link rel="stylesheet"
+		href="http://192.168.8.41/arcgis_js_v411_api/arcgis_js_api/library/4.11/esri/themes/light/main.css">
+	<link rel="stylesheet" type="text/css" href="iconfont/iconfont.css">
+	<link href="css/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="css/mb.css" />
+	<link rel="stylesheet" type="text/css" href="css/xieshen.css" />
+</head>
+
+<body>
+	<!--地图-->
+	<div id="mapView"></div>
+	<!-- nav -->
+	<ul class="navList">
+		<li class="navBtn navActiveBtn" data-show="jsxmMb">建设项目</li>
+		<li class="navBtn" data-show="ghfaMb">规划方案</li>
+		<li class="navBtn" data-show="tqghMb">提取规划</li>
+	</ul>
+	<!-- 建设项目 -->
+	<div class="mb" id="jsxmMb">
+		<div class="mbNote">项目范围:</div>
+		<div class="scBox jsxmSelect" data-type="sc">
+			<div class="yuan"></div>
+			<div class="upload">上传项目</div>
+			<div class="uploadNote">:未上传</div>
+		</div>
+		<form enctype="multipart/form-data" method="post" id="formXM" style="display: none;">
+			<input type="file" name="uploadFileXM" id="uploadFileXM" multiple>
+		</form>
+		<div class="hzBox jsxmSelect" data-type="hz">
+			<div class="yuan"></div>
+			<div class="draw">
+				多边形绘制
+			</div>
+		</div>
+		<div class="ydxzNote">用地性质:</div>
+		<div class="ydxzBtn" title="请选择用地性质">
+			请选择用地性质
+		</div>
+		<div class="startBtn"><span>开始审查</span></div>
+	</div>
+	<div class="ydxzMb" style="display: none">
+		<div class="closeYdxzMb"></div>
+		<div class="dl">
+			<span>选择大类</span>
+			<ul class="dlList">
+				<li title="居住用地(R)" data-code='R'>居住用地(R)</li>
+			</ul>
+		</div>
+		<div class="xl">
+			<span class="xlname">选择小类</span>
+			<ul class="xlList" style="display:none">
+				<li title="居住用地(R)">居住用地(R)</li>
+			</ul>
+		</div>
+		<div class="ydxzStart">确定</div>
+	</div>
+
+	<!-- 规划方案 -->
+	<div class="mb" id="ghfaMb" style="display: none">
+		<div class="mbNote">项目范围:</div>
+		<div class="scBox">
+			<div class="yuan"></div>
+			<div class="upload">上传项目</div>
+			<div class="uploadNote">:未上传</div>
+		</div>
+		<form enctype="multipart/form-data" method="post" id="formFA" style="display: none;">
+			<input type="file" name="uploadFileFA" id="uploadFileFA" class="uploadFileFA" multiple accept=".shp,.dbf,.shx">
+		</form>
+		<div class="selectWord">选择计算字段:</div>
+		<div id="attr"><span title=""></span></div>
+		<ul class="attrList">
+			<!-- <li title="高等院校用地(A3)">高等院校用地(A1)</li>
+            <li title="高等院校用地(A3)">高等院校用地(A2)</li> -->
+		</ul>
+		<div class="startBtn"><span>开始审查</span></div>
+	</div>
+	<!--提取规划-->
+	<div class="mb" id="tqghMb" style="display:none">
+		<div class="mbNote">选择规划:</div>
+		<div class="scBox tqghSelect" data-type="ghFile">
+			<div class="yuan"></div>
+			<div class="upload">上传项目</div>
+			<div class="uploadNote">:未上传</div>
+		</div>
+		<form enctype="multipart/form-data" method="post" id="formGH" style="display: none;">
+			<input type="file" name="uploadFileGH" id="uploadFileGH" multiple>
+		</form>
+		<div class="hzBox tqghSelect" data-type="ghDraw">
+			<div class="yuan"></div>
+			<div class="draw">
+				多边形绘制
+			</div>
+		</div>
+		<div class="startBtn"><span>开始审查</span></div>
+		<div class="ghList" style="display:none">
+			<div class="closetqghMb"></div>
+			<h2>规划设计条件生成清单</h2>
+			<div class="listpart">
+				<div class="listtitle"><span>规划用地情况</span></div>
+				<ul>
+					<li>用地面积
+						<div class="selbox selms"></div>
+					</li>
+					<li>待拆道路
+						<div class="selbox"></div>
+					</li>
+					<li>用地位置
+						<div class="selbox selms"></div>
+					</li>
+					<li>待建绿地
+						<div class="selbox"></div>
+					</li>
+					<li>用地性质
+						<div class="selbox selms"></div>
+					</li>
+					<li>配套设施
+						<div class="selbox selms"></div>
+					</li>
+				</ul>
+			</div>
+			<div class="listpart">
+				<div class="listtitle"><span>土地使用强度</span></div>
+				<ul>
+					<li>容积率
+						<div class="selbox selms"></div>
+					</li>
+					<li>建筑高度
+						<div class="selbox"></div>
+					</li>
+					<li>建筑面积
+						<div class="selbox selms"></div>
+					</li>
+					<li>绿化率
+						<div class="selbox"></div>
+					</li>
+					<li>建筑密度
+						<div class="selbox selms"></div>
+					</li>
+					<li>地下空间
+						<div class="selbox"></div>
+					</li>
+				</ul>
+			</div>
+			<div class="listpart">
+				<div class="listtitle"><span>建筑设计要求</span></div>
+				<ul>
+					<li>建筑色彩
+						<div class="selbox selms"></div>
+					</li>
+					<li>贴线率
+						<div class="selbox"></div>
+					</li>
+					<li>塔楼
+						<div class="selbox selms"></div>
+					</li>
+					<li>开敞度
+						<div class="selbox"></div>
+					</li>
+					<li>禁止开口
+						<div class="selbox selms"></div>
+					</li>
+					<li>公共廊道
+						<div class="selbox selms"></div>
+					</li>
+					<li>公共空间
+						<div class="selbox selms"></div>
+					</li>
+					<li>高度比
+						<div class="selbox"></div>
+					</li>
+				</ul>
+			</div>
+			<div class="listselect">
+				<div class="selsame seldefault">默认选项</div>
+				<div class="selsame selnext">下一步</div>
+			</div>
+		</div>
+	</div>
+	<!--提取规划协审文案-->
+	<div class="tqghResultBox" style="display: none">
+		<div class="head">
+			<span>提取协审结果单</span>
+			<div class="closeBox"></div>
+		</div>
+		<div class="body">
+			<div id="divTQGH" class="bodyContent word-content">
+				<h1 class="main-title">规划设计（土地使用）条件</h1>
+				<h2>XXXXXXXX公司：</h2>
+				<p>你单位申报的新建商业综合楼建设项目，经我局审查，同意按一下条件进行规划设计和使用土地；</p>
+				<h2>一、规划用地情况</h2>
+				<p><strong>1、规划用地面积为：</strong><u>&nbsp13973&nbsp</u>&nbsp平方米（以实测为准）;</p>
+				<p class="kongge">其中：待拆道路用地：<u>&nbsp4364&nbsp</u>&nbsp平方米（以实测为准）;</p>
+				<p class="kongge">净用地面积：<u>&nbsp9609&nbsp</u>&nbsp平方米（以实测为准）;</p>
+				<p><strong>2、规划用地性质：</strong>商业金融业用地；土地分类：<u>商服用地;</u></p>
+				<p><strong>3、用地位置：</strong><u>汉阳区龙阳大道特&nbsp18&nbsp号</u>（详见规划设计范围线）。</p>
+				<h2>二、土地使用强度</h2>
+				<p><strong>1、建筑面积：</strong><u>控制在&nbsp31600&nbsp平方米以内</u>;</p>
+				<p><strong>2、容积率：</strong><u>控制在&nbsp3.3&nbsp以内</u>（容积率=建筑面积/净用地面积）;</p>
+				<p><strong>3、建筑密度：</strong><u>待方案审定后确定</u>;</p>
+				<p><strong>4、建筑高度：</strong><u>待方案审定后确定</u>;</p>
+				<p><strong>5、绿化率：</strong><u>按《武汉市城市绿化条例》执行</u>;</p>
+				<h2>三、建筑设计要求</h2>
+				<p><strong>1、建筑色彩：</strong><u>参照《xxx》执行</u>;</p>
+				<p><strong>2、塔楼：</strong><u>控制两处塔楼，高度不低于&nbsp150&nbsp米，不高于&nbsp300&nbsp米</u>;</p>
+				<p><strong>3、禁止开口：</strong><u>沿xxx路，xxx路，禁止设置机动车出入口</u>;</p>
+				<p><strong>4、公共空间：</strong><u>在xxx出，设置一处不小于&nbsp1.2ha&nbsp的公共空间</u>。</p>
+			</div>
+		</div>
+	</div>
+	<!-- 协审文案 -->
+	<div class="xieshenResultBox" style="display: none">
+		<div class="head">
+			<span>规划协审意见单</span>
+			<!-- <div id="downLoad"></div> -->
+			<div id="save" onclick="xieshenPage.saveword();"></div>
+			<div id="closeRes"></div>
+		</div>
+		<img class="qqqq" />
+		<div class="body">
+			<div id="hs"><span>回溯</span></div>
+			<div id="divXSYJD" class="bodyContent word-content">
+				<div class="content"></div>
+			</div>
+		</div>
+	</div>
+	<!-- 建设项目协审结果面板 -->
+	<div class="xsMb" style="display: none">
+		<div class="head">
+			<span>协审结果</span>
+			<div class="xsyj"></div>
+			<div class="closeMb"></div>
+		</div>
+		<!--<div class="title">三区三线</div>
+        <div class="sqsx">
+            <ul id="sqsxList">
+                <li data-code="">城镇开发边界<i class=""></i></li>
+                <li data-code="nt">基本农田<i class=""></i></li>
+                <li data-code="st">基本生态控制线<i class=""></i></li>
+                <li data-code="hx">生态保护红线<i class=""></i></li>
+            </ul>
+        </div>
+        <div class="title">法定规则</div>
+        <div class="fdgz">
+            <ul id="fdgzList">
+                <li data-code="zg">总规过渡版总图<i class=""></i></li>
+                <li data-code="tg">土地利用总体规划<i class=""></i></li>
+                <li data-code="kg">控制性详细规则<i class=""></i></li>
+            </ul>
+        </div>
+        <div class="title">专线规则</div>
+        <div class="zxgz">
+            <ul id="zxgzList">
+                <li data-code="">紫线规则<i class=""></i></li>
+                <li data-code="xl">三线一路<i class=""></i></li>
+                <li data-code="">城市道路红线<i class=""></i></li>
+            </ul>
+        </div>-->
+	</div>
+	<!-- 建设项目协审结果详情 -->
+	<div class="xsXq" style="display: none">
+		<div class="head">
+			<span>规划协审意见单</span>
+			<div id="closeXq"></div>
+		</div>
+		<div class="body">
+			<!-- 协审结果按钮-->
+			<button class="jsxmCheckBox"><span>协审结果</span> <input type="checkbox" checked="true" /></button>
+			<div class="diyLegendBox">
+				<div class="diyLegendBoxF diyG">
+					<div></div>通过
+				</div>
+				<div class="diyLegendBoxF diyR">
+					<div></div>不通过
+				</div>
+				<div class="diyLegendBoxF diyO">
+					<div></div>人工判断
+				</div>
+			</div>
+
+			<div class="bodyContent" id="mapView_jsxm"></div>
+		</div>
+		<div class="tableDiv">
+			<table class="table" border="1">
+				<thead>
+					<tr>
+						<th rowspan="2">编号</th>
+						<th colspan="2">原方案</th>
+						<th style="background-color: rgb(27, 87, 103)" colspan="2">项目方案</th>
+						<th></th>
+						<th></th>
+					</tr>
+					<tr style="">
+						<td>用地性质</td>
+						<td>面积（ha）</td>
+						<td style="background-color: rgb(27, 87, 103)">用地性质</td>
+						<td style="background-color: rgb(27, 87, 103)">面积（ha）</td>
+						<td>结论</td>
+						<td>处理建议</td>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- 规划方案协审结果 -->
+	<div class="faXq" style="display: none">
+		<div class="head">
+			<span>基本生态控制线协审情况</span>
+			<div id="closeFa"></div>
+			<div class="xsyjFa" title="预览报告"></div>
+			<div class="xsBg" title="显示统计表"></div>
+		</div>
+		<div class="left">
+			<!--<div class="title">三区三线</div>
+            <div class="sqsx">
+                <ul id="sqsxList_fa">
+                    <li><span data-code="">城镇开发边界</span> </li>
+                    <li><span data-code="nt">基本农田</span> </li>
+                    <li><span data-code="st">基本生态控制线</span> </li>
+                    <li><span data-code="hx">生态保护红线</span> </li>
+                </ul>
+            </div>
+            <div class="title">法定规则</div>
+            <div class="fdgz">
+                <ul id="fdgzList_fa">
+                    <li data-code="zg"><span>总规过渡版总图</span> </li>
+                    <li data-code="tg"><span>土地利用总体规划</span> </li>
+                    <li data-code="kg"><span>控制性详细规则</span> </li>
+                </ul>
+            </div>
+            <div class="title">专线规则</div>
+            <div class="zxgz">
+                <ul id="zxgzList_fa">
+                    <li data-code=""><span>紫线规则</span></li>
+                    <li data-code="xl"><span>三线一路</span></li>
+                    <li data-code=""><span>城市道路红线</span></li>
+                </ul>
+            </div>-->
+		</div>
+		<div class="right">
+
+			<div class="mapDiv1">
+				<div id="mapView1"></div>
+			</div>
+			<div class="mapDiv2">
+				<!-- 协审结果按钮-->
+				<button class="ghfaCheckBox"><span>协审结果</span> <input type="checkbox" checked="true" /></button>
+				<div class="diyLegendBox">
+					<div class="diyLegendBoxF diyG">
+						<div></div>通过
+					</div>
+					<div class="diyLegendBoxF diyR">
+						<div></div>不通过
+					</div>
+					<div class="diyLegendBoxF diyO">
+						<div></div>人工判断
+					</div>
+					<div class="diyLegendBoxF diyN">
+						<div></div>无规则
+					</div>
+				</div>
+				<div id="mapView2"></div>
+			</div>
+			<div class="tableDiv" style="display: none">
+				<table class="table" border="1">
+					<thead>
+						<tr>
+							<th colspan="2">类别代码</th>
+							<th colspan="2" class='layerName'>一张图</th>
+							<th colspan="2">项目方案</th>
+							<th rowspan="2">变动值</th>
+						</tr>
+						<tr>
+							<td>大类</td>
+							<td>中类</td>
+							<td>用地面积(ha)</td>
+							<td>占比(%)</td>
+							<td>用地面积</td>
+							<td>占比(%)</td>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="table_yfa" style="display: none">
+				<table class="table" border="1">
+					<thead>
+						<tr>
+							<th rowspan="2">用地类别</th>
+							<th colspan="2" class='layerName'>原方案</th>
+						</tr>
+						<tr>
+							<th>用地面积（ha）</th>
+							<th>占比(%)</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="table_xfa" style="display: none">
+				<table class="table" border="1">
+					<thead>
+						<tr>
+							<th colspan="2">类别代码</th>
+							<th colspan="2">项目方案</th>
+						</tr>
+						<tr>
+							<th>大类</th>
+							<th>中类</th>
+							<th>用地面积（ha）</th>
+							<th>占比(%)</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="fxTableDiv">
+				<table class="table" border="1">
+					<thead>
+						<tr>
+							<th rowspan="2">编号</th>
+							<th colspan="2" class='layerName'>原方案</th>
+							<th style="background-color: rgb(27, 87, 103)" colspan="2">项目方案</th>
+							<th></th>
+							<th></th>
+						</tr>
+						<tr>
+							<td>用地性质</td>
+							<td>面积（ha）</td>
+							<td style="background-color: rgb(27, 87, 103)">用地性质</td>
+							<td style="background-color: rgb(27, 87, 103)">面积（ha）</td>
+							<td>结论</td>
+							<td>处理建议</td>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+		<!-- <div class="body">
+            <div class="bodyContent"></div>
+        </div>-->
+
+	</div>
+
+	<div class="lodding" style="display: none">
+		<div class="" id="step">
+			数据加载......
+		</div>
+	</div>
+	<!--加载框-->
+	<div class="transition-loader" style="display: none">
+		<div class="transition-loader-warp">
+			<div class="animates">
+				<div class="first"></div>
+				<div class="second"></div>
+				<div class="third"></div>
+			</div>
+			<div class="text">
+				<div style="font-size:0.26rem">
+					<span>计算中</span>
+					<span class="ball-big one"></span>
+					<span class="ball-big two"></span>
+					<span class="ball-big three"></span>
+				</div>
+				<div style="font-size:0.16rem;">
+					<span>calculating</span>
+					<span class="ball-small one"></span>
+					<span class="ball-small two"></span>
+					<span class="ball-small three"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- <div class="transition-loader" style="display: none;">
+		<div class="transition-loader-inner">
+			<label></label>
+			<label></label>
+			<label></label>
+			<label></label>
+			<label></label>
+			<label></label>
+		</div>
+	</div> -->
+	<a id="maoDian" style="display: none;"></a>
+</body>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="http://192.168.8.41/arcgis_js_v411_api/arcgis_js_api/library/4.11/init.js"></script>
+<script src="js/mapOperator.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/config.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ctcxHelpWord.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/roadHelpWord.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/xieshen.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	$(function () {
+		let designSize = 1920; // 设计图尺寸
+
+		let html = document.documentElement;
+
+		let wW = html.clientWidth; // 窗口宽度
+		let rem = wW * 100 / designSize;
+
+		document.documentElement.style.fontSize = rem + 'px';
+
+	});
+	$(window).resize(function () {
+
+		let designSize = 1920; // 设计图尺寸
+
+		let html = document.documentElement;
+
+		let wW = html.clientWidth; // 窗口宽度
+		let rem = wW * 100 / designSize;
+
+		document.documentElement.style.fontSize = rem + 'px';
+	});
+</script>
+
+</html>
