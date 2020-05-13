@@ -2766,6 +2766,15 @@ var xieshenPage = {
 			xieshenPage.mapOperator2.map.findLayerById('fx').opacity = 0
 			xieshenPage.mapOperator2.map.findLayerById('fg').opacity = 0
 		}
+
+		//方案上传地地块显示
+		var scdk = $("input[id='scdk']").attr("checked")
+		if(scdk){
+			xieshenPage.mapOperator2.map.findLayerById('dk').opacity = 1
+		}else{
+			xieshenPage.mapOperator2.map.findLayerById('dk').opacity = 0
+		}
+
 		xieshenPage.mapOperator2.map.findLayerById('xsState').graphics.removeAll()
 		//xieshenPage.mapOperator2.map.findLayerById('text').graphics.removeAll()
 		//xieshenPage.clashShow('mapOperator2', 16, xieshenPage.xsDataObj[layCode].hegui, 'xsState', true)
