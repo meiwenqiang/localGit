@@ -344,6 +344,19 @@ var xieshenPage = {
 				xieshenPage.mapOperator2.map.findLayerById('fg').opacity = 1
 			}
 		})
+
+		//上传地块的渲染图层的显示隐藏控制
+		$(".dkCheckBox").click(function () {
+			let is = $(".dkCheckBox input").attr("checked")
+			if (is) {
+				$(".dkCheckBox input").attr("checked", false);
+				xieshenPage.mapOperator2.map.findLayerById('dk').opacity = 0
+			} else {
+				$(".dkCheckBox input").attr("checked", true)
+				xieshenPage.mapOperator2.map.findLayerById('dk').opacity = 1
+			}
+		})
+
 		//建设项目.规划方案、提取规划的导航点击
 		$(".navBtn").click(function () {
 			$(".ydxzMb").hide()
