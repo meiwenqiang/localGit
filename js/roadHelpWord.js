@@ -10,7 +10,8 @@ var roadHelpWordJs = {
         "U": true,
         "G": true
     },
-	roadHelpWord: function (geo, mapO,faDkGeoArr,yztData,rkxzData) {
+	roadHelpWord: function (geo, mapO,faDkGeoArr,yztData,rkxzData,rk) {
+            roadHelpWordJs.rk = rk
             roadHelpWordJs.faDkGeoArr=faDkGeoArr
             roadHelpWordJs.yztData = yztData
             roadHelpWordJs.rkxzData=rkxzData
@@ -110,11 +111,11 @@ var roadHelpWordJs = {
 			"S_Area":S_Area/100,
 			"S_Range_Proportion":(S_Area/range)*100,
 			"S_H11_Proportion":(S_Area/H11_Area)*100,
-			"people_S":S_Area*10000/p_total,
+			"people_S":S_Area*10000/roadHelpWordJs.rk,
 			"S1_Area":S1_Area/100,
 			"S1_Range_Proportion":(S1_Area/range)*100,
 			"S1_H11_Proportion":(S1_Area/H11_Area)*100,
-			"people_S1":S1_Area*10000/p_total
+			"people_S1":S1_Area*10000/roadHelpWordJs.rk
 		}
     },
 	facilitiesFun:function(){

@@ -1,25 +1,42 @@
 var featureHelpWordJs = {
     op: {
-        "lswh": {
-            num: 0,
-            arr: ["string","string"]
+        tgSituation: {
+            xmTotal: 0,
+            tjTotal: 0
         },
-        "jcjk": [
-            {
-                name: "string",
-                area: 0
-            }
-        ],
-        "wbtd": ["string", "string"],
-        "sttj":[{
-            totalArea:0,
-            arr:[{
-                name: "string",
-                area: 0 
+        featureSituation: {
+            "lswh": {
+                num: 0,
+                arr: ["string", "string"]
+            },
+            "jcjk": [
+                {
+                    name: "string",
+                    area: 0
+                }
+            ],
+            "wbtd": ["string", "string"],
+            "sttj": [{
+                totalArea: 0,
+                arr: [{
+                    name: "string",
+                    area: 0
+                }]
             }]
-        }]
+        },
+
+
     },
     featureServeObj: {
+        "土地利用总体规划": {
+            "url": "http://192.168.8.41:6080/arcgis/rest/services/TDLY/GIS_FZSYS_TGBZ_TGTZ/MapServer",
+            "layerIds": [
+                4
+            ],
+            "outFields": ["FID"],
+            "returnGeometry": true,
+            "funType": "tg"
+        },
         "历史文化保护紫线": {
             "url": "http://192.168.31.56:6080/arcgis/rest/services/%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE/%E6%AD%A6%E6%B1%89%E5%B8%82%E7%B4%AB%E7%BA%BF%E4%B8%93%E9%A1%B9%E8%A7%84%E5%88%92%E4%BC%98%E5%8C%96/MapServer",
             "layerIds": [
@@ -56,75 +73,26 @@ var featureHelpWordJs = {
             "returnGeometry": true,
             "funType": "sttj"
         }
-        // "现状人口": {
-        // 	"url": "http://whgis.wpl:8010/ServiceAdapter/MAP/%E6%9C%80%E5%B0%8F%E7%A9%BA%E9%97%B4%E5%8D%95%E5%85%832018%E5%B9%B4%E4%BA%BA%E5%8F%A3%E7%BB%9F%E8%AE%A1/5606b7d46861a2078fd4a6369ff2ea6c",
-        // 	"layerIds": [
-        // 		0
-        // 	],
-        // 	"outFields": ["FREQUENCY", "Age0_14", "Age15_64", "Age65up"],
-        // 	"dictionary": {
-        // 		"0-14岁": "Age0_14",
-        // 		"15-64岁": "Age15_64",
-        // 		"65岁以上": "Age65up"
-        // 	},
-        // 	"returnGeometry": true,
-        // 	"funType": "xzrk"
-        // },
-        // "现状建筑": {
-        // 	"url": "http://192.168.213.153:6080/arcgis/rest/services/FZJZ_TILE/%E4%BB%BF%E7%9C%9F%E5%AE%9E%E9%AA%8C%E5%AE%A4%E5%BB%BA%E7%AD%91%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE_TILE/MapServer",
-        // 	"layerIds": [
-        // 		0, 1, 2, 3, 4, 5, 6, 7, 8
-        // 	],
-        // 	"outFields": ["建筑面积", "地上层数", "建筑用途"],
-        // 	"returnGeometry": false,
-        // 	"funType": "xzjz"
-        // },
-        // "现状权属": {
-        // 	"url": "http://whgis.wpl:8010/ServiceAdapter/MAP/SYQWH2000new1(%E5%88%87%E7%89%87%EF%BC%89/19534274a9897b8880845a14268558c3",
-        // 	"layerIds": [
-        // 		0
-        // 	],
-        // 	"outFields": ["QLR", "Shape_Area"],
-        // 	"returnGeometry": false,
-        // 	"funType": "xzcs"
-        // },
-        // "土地信息": {
-        // 	"gy": {
-        // 		"url": "http://tdxx.wpl:6080/arcgis/rest/services/FZSYS/tdgy/MapServer",
-        // 		"layerIds": [
-        // 			0
-        // 		],
-        // 		"outFields": ["标准土地用途"],
-        // 		"returnGeometry": true,
-        // 		"funType": "gy"
-        // 	},
-        // 	"cb": {
-        // 		"url": "http://192.168.31.199:6080/arcgis/rest/services/TDCB/MapServer",
-        // 		"layerIds": [
-        // 			0
-        // 		],
-        // 		"outFields": ["OBJECTID"],
-        // 		"returnGeometry": true,
-        // 		"funType": "cb"
-        // 	}
-        // }
     },
-    featureHelpWord: function (geo, mapO, faDkGeoArr) {
-        featureHelpWordJs.op.lswh = {
+    featureHelpWord: function (geo, mapO, faDkGeoArr, xsData) {
+        featureHelpWordJs.op.tgSituation.xmTotal = 0
+        featureHelpWordJs.op.tgSituation.tjTotal = 0
+        featureHelpWordJs.op.featureSituation.lswh = {
             num: 0,
             arr: []
         }
-        featureHelpWordJs.op.jcjk = []
-        featureHelpWordJs.op.wbtd = []
-        featureHelpWordJs.op.sttj = {
-            totalArea:0,
-            arr:[]
+        featureHelpWordJs.op.featureSituation.jcjk = []
+        featureHelpWordJs.op.featureSituation.wbtd = []
+        featureHelpWordJs.op.featureSituation.sttj = {
+            totalArea: 0,
+            arr: []
         }
         return new Promise(function (reslove, reject) {
             featureHelpWordJs.isOk = 0
             featureHelpWordJs.mapOperator = mapO
             featureHelpWordJs.geo = geo
             featureHelpWordJs.faDkGeoArr = faDkGeoArr
+            featureHelpWordJs.tgSumarea = xsData.tg.sumarea
             var _p = [];
             for (let key in featureHelpWordJs.featureServeObj) {
                 var p1;
@@ -240,6 +208,30 @@ var featureHelpWordJs = {
         })
         return p;
     },
+    tg: function (features) {
+        var xmTotal = 0
+        var tjTotal = 0
+        var tgSumarea = featureHelpWordJs.tgSumarea
+        var dictionary = featureHelpWordJs.tgDictionary
+        var ydDictionary = featureHelpWordJs.jsydGeneralDictionary
+        for (let j = 0; j < tgSumarea.length; j++) {
+            if (!dictionary[tgSumarea[j].type] && ydDictionary[tgSumarea[j].dkType.substr(0, 1)]) {
+                xmTotal += tgSumarea[j].totalArea
+                for (let i = 0; i < features.length; i++) {
+                    var intersect_geo = featureHelpWordJs.mapOperator.types.geoEngine.intersect(tgSumarea[j].geometry, features[i].geometry);
+                    if (intersect_geo) {
+                        var intersect_mj = featureHelpWordJs.mapOperator.types.geoEngine.planarArea(intersect_geo, 'hectares');
+                        tjTotal += intersect_mj
+
+                    }
+                }
+
+            }
+
+        }
+        featureHelpWordJs.op.tgSituation.xmTotal = xmTotal / 100
+        featureHelpWordJs.op.tgSituation.tjTotal = tjTotal / 100
+    },
     lswh: function (features) {
         var attrObj = {}
         for (let j = 0; j < features.length; j++) {
@@ -257,8 +249,8 @@ var featureHelpWordJs = {
             }
         }
         var attrObjArr = Object.keys(attrObj)
-        featureHelpWordJs.op.lswh.num = attrObjArr.length
-        featureHelpWordJs.op.lswh.arr = attrObjArr
+        featureHelpWordJs.op.featureSituation.lswh.num = attrObjArr.length
+        featureHelpWordJs.op.featureSituation.lswh.arr = attrObjArr
         function splitHelp(str) {
             var dictionary = featureHelpWordJs.splitDictionary
             var lsArr = []
@@ -304,7 +296,7 @@ var featureHelpWordJs = {
             }
         }
         for (let key in attrObj) {
-            featureHelpWordJs.op.jcjk.push(
+            featureHelpWordJs.op.featureSituation.jcjk.push(
                 {
                     name: key,
                     area: attrObj[key]
@@ -317,7 +309,7 @@ var featureHelpWordJs = {
         var outFields = featureHelpWordJs.featureServeObj["机场净空线"]["outFields"][0]
         for (let j = 0; j < features.length; j++) {
             var attr = features[j]["attributes"][outFields]
-            featureHelpWordJs.op.wbtd.push(attr)
+            featureHelpWordJs.op.featureSituation.wbtd.push(attr)
         }
     },
     sttj: function (features) {
@@ -363,11 +355,11 @@ var featureHelpWordJs = {
                 }
             }
         }
-        featureHelpWordJs.op.sttj.totalArea = totalArea
-        for(let key in totalObj){
-            featureHelpWordJs.op.sttj.arr.push({ name: key, area: totalObj[key] })
+        featureHelpWordJs.op.featureSituation.sttj.totalArea = totalArea
+        for (let key in totalObj) {
+            featureHelpWordJs.op.featureSituation.sttj.arr.push({ name: key, area: totalObj[key] })
         }
-        
+
     },
     splitDictionary: [",", "，", "、"],
     jsydDictionary: {
@@ -386,5 +378,31 @@ var featureHelpWordJs = {
         "H4": "特殊用地",
         "H5": "采矿用地",
         "H9": "其他建设用地",
+    },
+    jsydGeneralDictionary: {
+        "R": true,
+        "A": true,
+        "B": true,
+        "M": true,
+        "W": true,
+        "S": true,
+        "U": true,
+        "G": true,
+        "H": true
+    },
+    tgDictionary: {
+        "城镇用地": true,
+        "农村居民点用地": true,
+        "其他独立建设用地": true,
+        "采矿用地": true,
+        "铁路用地": true,
+        "公路用地": true,
+        "民用机场用地": true,
+        "港口码头用地": true,
+        "管道运输用地": true,
+        "水库水面": true,
+        "水工建筑用地": true,
+        "风景名胜设施用地": true,
+        "特殊用地": true
     }
 }
