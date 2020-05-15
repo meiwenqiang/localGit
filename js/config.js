@@ -1,7 +1,7 @@
 //协审后台接口
 var newPyHttp = "http://192.168.8.41:5002/"
-// var netHttp = "http://192.168.8.41:8888";
-var netHttp = "http://localhost:8090";
+var netHttp = "http://192.168.8.41:8880";
+//var netHttp = "http://localhost:8090";
 var apiHttp = "http://192.168.8.41:8889";//api
 //协审规则脚本
 //var pyHttp = "http://192.168.10.29:8890/test/";
