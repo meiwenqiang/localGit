@@ -164,15 +164,15 @@ var ctcxHelpWordJs = {
 			"returnGeometry": false,
 			"funType": "xzjz"
 		},
-		// "现状权属": {
-		// 	"url": "http://whgis.wpl:8010/ServiceAdapter/MAP/SYQWH2000new1(%E5%88%87%E7%89%87%EF%BC%89/19534274a9897b8880845a14268558c3",
-		// 	"layerIds": [
-		// 		0
-		// 	],
-		// 	"outFields": ["QLR", "Shape_Area"],
-		// 	"returnGeometry": false,
-		// 	"funType": "xzcs"
-		// },
+		"现状权属": {
+			"url": "http://whgis.wpl:8010/ServiceAdapter/MAP/不动产切片/5606b7d46861a2078fd4a6369ff2ea6c",
+			"layerIds": [
+				1
+			],
+			"outFields": ["QLR", "Shape_Area"],
+			"returnGeometry": true,
+			"funType": "xzcs"
+		},
 		"土地信息": {
 			"gy": {
 				"url": "http://tdxx.wpl:6080/arcgis/rest/services/FZSYS/tdgy/MapServer",
@@ -590,33 +590,51 @@ var ctcxHelpWordJs = {
 	},
 	xzcs: function (features) {
 		var OF0 = ctcxHelpWordJs.ctcxServeObj["现状权属"]["outFields"][0]
-		var OF1 = ctcxHelpWordJs.ctcxServeObj["现状权属"]["outFields"][1]
+		//var OF1 = ctcxHelpWordJs.ctcxServeObj["现状权属"]["outFields"][1]
 
-		var total = {}
+		var totalObj = {}
 		var attributes_arr = []
-		var range = 0;
+
+		var range = Math.abs(ctcxHelpWordJs.mapOperator.types.geoEngine.planarArea(ctcxHelpWordJs.geo, "hectares"));
+		var totalArea = 0;
 		for (let j = 0; j < features.length; j++) {
-			if (total[features[j].attributes[OF0]]) {
-				total[features[j].attributes[OF0]] += features[j].attributes[OF1];
-			} else {
-				total[features[j].attributes[OF0]] = features[j].attributes[OF1];
+			//var primary_mj = Math.abs(ctcxHelpWordJs.mapOperator.types.geoEngine.planarArea(features[j].geometry, 'hectares'))
+			try {
+				var intersect_geo = ctcxHelpWordJs.mapOperator.types.geoEngine.intersect(ctcxHelpWordJs.geo, features[j].geometry);
+				var intersect_mj = ctcxHelpWordJs.mapOperator.types.geoEngine.planarArea(intersect_geo, 'hectares');
+				//var proportion = intersect_mj / primary_mj;
+				if (totalObj[features[j].attributes[OF0]]) {
+					totalObj[features[j].attributes[OF0]] += intersect_mj;
+				} else {
+					totalObj[features[j].attributes[OF0]] = intersect_mj;
+				}
+				totalArea += intersect_mj
+			} catch (error) {
+				console.log(error)
+				console.log(features[j])
 			}
-			range += features[j].attributes[OF1]
+
 		}
 
-		ctcxHelpWordJs.op["dj"]["z"] = features.length
-		for (let key in total) {
-			var bl = (total[key] / range) * 100
+		ctcxHelpWordJs.op["qs"]["total"] = features.length
+		ctcxHelpWordJs.op["qs"]["totalArea"] = totalArea
+		ctcxHelpWordJs.op["qs"]["proportion"] = (totalArea / range * 100)
+		for (let key in totalObj) {
+			var bl = (totalObj[key] / totalArea) * 100
 			if (bl > 5) {
-				attributes_arr.push([key, bl])
+				ctcxHelpWordJs.op["qs"]["arr"].push({
+					name: key,
+					area: totalObj[key],
+					Proportion: bl
+				})
 			}
 		}
-		attributes_arr = attributes_arr.sort(function (a, b) {
-			return b[1] - a[1];
-		})
-		for (let i = 0; i < attributes_arr.length; i++) {
-			ctcxHelpWordJs.op["dj"]["wz"].push(attributes_arr[i][0])
-		}
+		// attributes_arr = attributes_arr.sort(function (a, b) {
+		// 	return b[1] - a[1];
+		// })
+		// for (let i = 0; i < attributes_arr.length; i++) {
+		// 	ctcxHelpWordJs.op["dj"]["wz"].push(attributes_arr[i][0])
+		// }
 		ctcxHelpWordJs.isOk++
 	},
 	"ydAttrTotalDictionary": {
