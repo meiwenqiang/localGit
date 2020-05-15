@@ -24,9 +24,13 @@ var xieshenPage = {
 	xsResult_ghfa: {}, //规划方案协审结果
 	faFwGeo: null, //规划方案上传的范围图形
 	faDkGeoArr: [], //规划方案上传的地块图形
+	ghrk:null, //规划人口
+
 
 	rkxzData: null,//查询人口现状信息
 	yztData: null, //一张图查询信息
+	kzyslsData: null, //控制要素落实信息
+	dlss:null,//道路设施数据
 
 	ruleArrInfo: {}, //所有图层的规则集合
 
@@ -1556,8 +1560,8 @@ var xieshenPage = {
 			}
 
 			function LSajax2() {
-				var n = $("#xmmc-input").val();
-				var a = $("#address-input").val();
+				// var n = $("#xmmc-input").val();
+				// var a = $("#address-input").val();
 				// if(n==undefined || n==""){
 				// 	alert("请填写项目名称");
 				// 	return ;
@@ -1566,9 +1570,58 @@ var xieshenPage = {
 				// 	alert("请填写项目地址");
 				// 	return ;
 				// }
+				var name = $("#name").val();//项目名称
+				var bzdw = $("#bzdw").val();//编制单位
+				var scsj = $("#scsj").html();//审查时间
+				var cgsd = $("#cgsd").val();//成果深度
+				var title = $("#title").val();//简介
+				var ghcg = $("#ghcg").val(); //规划成果
+				var xmqw = $("#xmqw").val(); //项目区位
+				var xmdw = $("#xmdw").val(); //项目定位
+				var jdxzqkTitle = $("#jdxzqkTitle ").val(); // 基地现状情况段落
+				var jsbg = {
+					'name': name,
+					'bzdw': bzdw,
+					'scsj': scsj,
+					'cgsd': cgsd,
+					'title': title,
+					'ghcg': ghcg,
+					'xmqw': xmqw,
+					'xmdw': xmdw,
+					'jdxzqkTitle': jdxzqkTitle
+				};
+			
+				//现状信息
 				var xzxx = '';
 				try {
 					xzxx = JSON.stringify(xieshenPage.rkxzData);
+				} catch (e) {
+					console.log(e);
+				}
+				//一张图数据
+				var yztData = '';
+				try {
+					yztData = JSON.stringify(xieshenPage.yztData);
+				} catch (e) {
+					console.log(e);
+				}
+				//道路、设施数据
+				var roadData = '';
+				var sslsData = '';
+				try {
+					roadData = JSON.stringify(xieshenPage.dlss.road);
+					sslsData = JSON.stringify(xieshenPage.dlss.facilities);
+				} catch (e) {
+					console.log(e);
+				}
+				//控制要素落实情况
+				var kzyslsqkData = '';
+				//土地利用总体规划
+				var tdlyztghData = '';
+				try {
+					kzyslsqkData = JSON.stringify(xieshenPage.kzyslsData.featureSituation);
+					var arr = [xieshenPage.kzyslsData.tgSituation.xmTotal, xieshenPage.kzyslsData.tgSituation.tjTotal];
+					tdlyztghData = JSON.stringify(arr);
 				} catch (e) {
 					console.log(e);
 				}
@@ -1579,10 +1632,14 @@ var xieshenPage = {
 					data: {
 						'yongdi': JSON.stringify(xieshenPage.yongdi),
 						'tcData': JSON.stringify(xieshenPage.xsResult_ghfa),
-						'name': n,
-						'address': a,
+						'jsbg':JSON.stringify(jsbg),
+
 						'xzxxData': xzxx,
 						'yztData': JSON.stringify(xieshenPage.yztData),
+						"roadData": roadData,
+						"sslsData": sslsData,
+						"kzyslsqkData": kzyslsqkData,
+						'tdlyztghData': tdlyztghData
 					},
 					dataType: "json",
 					async: false,
@@ -1596,6 +1653,7 @@ var xieshenPage = {
 
 					},
 					error: function (err) {
+						$(".transition-loader").hide()
 						console.log(err);
 					}
 				});
@@ -1908,6 +1966,11 @@ var xieshenPage = {
 		xieshenPage.faShpPath = data.ShpPath;
 		var fwxFea = JSON.parse(data.fwRes).features;
 		var dkFeaArr = JSON.parse(data.dkRes).features;
+		//规划人口
+		xieshenPage.ghrk = 0;
+		if(fwxFea[0].properties['规划人口']){
+			xieshenPage.ghrk = Number(fwxFea[0].properties['规划人口']);
+		}
 		if (fwxFea) { //渲染范围
 			var polygon = xieshenPage.mapOperator.GetPolygon(fwxFea[0].geometry.coordinates);
 			xieshenPage.mapOperator.fwxPolygonGraphAdd(polygon);
@@ -2277,8 +2340,8 @@ var xieshenPage = {
 								}
 								// xieshenPage.ajaxRule(code, tcStr, dkFeaArr[i][xieshenPage.attrFa], intersect_geo, ydflMj, end, xieshenPage.faQueryAllEnd, i)
 
-
-								xieshenPage.compareRule(code, layerRule, tcStr, dkFeaArr[i][xieshenPage.attrFa], intersect_geo, ydflMj, end,
+								var fid = tcFeaArr[j].attributes["FID"];//图层地块标识
+								xieshenPage.compareRule(fid, code, layerRule, tcStr, dkFeaArr[i][xieshenPage.attrFa], intersect_geo, ydflMj, end,
 									xieshenPage.faQueryAllEnd, i)
 								//xieshenPage.testArr.push(intersect_geo)
 							}
@@ -2298,8 +2361,9 @@ var xieshenPage = {
 	 * @param {*} standarddlmc 上传属性
 	 * @param {*} intersect_geo 相交地块
 	 * @param {*} ydflMj 面积
+	 *  @param {*} fid 地块标识
 	 */
-	compareRule: function (code, layerRuleJson, pendingdlmc, standarddlmc, intersect_geo, ydflMj, end, fun, i) {
+	compareRule: function (fid, code, layerRuleJson, pendingdlmc, standarddlmc, intersect_geo, ydflMj, end, fun, i) {
 		if (layerRuleJson && layerRuleJson[pendingdlmc]) {
 			var key = null;
 			if (standarddlmc == undefined || standarddlmc == "") {
@@ -2312,7 +2376,7 @@ var xieshenPage = {
 				theRuleRes = layerRuleJson[pendingdlmc]["其他"];
 			}
 			try {
-				xieshenPage.getRuleRes(code, theRuleRes, pendingdlmc, key, standarddlmc, intersect_geo, ydflMj, end, fun, i)
+				xieshenPage.getRuleRes(fid, code, theRuleRes, pendingdlmc, key, standarddlmc, intersect_geo, ydflMj, end, fun, i)
 			} catch (e) {
 				console.log(e);
 			}
@@ -2327,7 +2391,7 @@ var xieshenPage = {
 	 * @param {*} intersect_geo 相交图形
 	 * @param {*} ydflMj 面积
 	 */
-	getRuleRes: function (code, layerRule, pendingdlmc, standarddlmc, scType, intersect_geo, ydflMj, end, fun, i) {
+	getRuleRes: function (fid, code, layerRule, pendingdlmc, standarddlmc, scType, intersect_geo, ydflMj, end, fun, i) {
 		if (layerRule) {//有规则
 			if (layerRule.ispass == 0) {
 				xieshenPage.xsDataObj[code].isHg = 0
@@ -2353,7 +2417,8 @@ var xieshenPage = {
 					type: layerRule.pendingdlmc,
 					geometry: intersect_geo,
 					objId: i,
-					dkType: scType
+					dkType: scType,
+					fid: fid
 				})
 
 				//console.log(code + ":" + i)
@@ -2377,7 +2442,8 @@ var xieshenPage = {
 					totalArea: ydflMj,
 					type: pendingdlmc,
 					dkType: scType,
-					geometry: intersect_geo
+					geometry: intersect_geo,
+					fid: fid
 				})
 				//优先级判断 不通过0>人工判断2>无规则>通过1
 
@@ -2616,23 +2682,31 @@ var xieshenPage = {
 		xieshenPage.faRkxzQuery();
 		//查询一张图的的表格数据
 		xieshenPage.faYztQuery();
+		//查询控制要素落实情况数据
+		xieshenPage.kzyslsData = null;
+		featureHelpWordJs.featureHelpWord(xieshenPage.faFwGeo, xieshenPage.mapOperator, xieshenPage.faDkGeoArr, xieshenPage.xsResult_ghfa).then((res) => {
+			//console.log(res);
+			xieshenPage.kzyslsData = res;
+		});
 	},
+
+
 
 	//请求方案报告
 	queryReportFa: function () {
 		$(".transition-loader").show()
 
 		//判断人口现状信息数据是否查询完毕 和一张图数据
-		if (xieshenPage.rkxzData == null || xieshenPage.yztData == null || xieshenPage.yztData == "err") {
+		if (xieshenPage.rkxzData == null || xieshenPage.yztData == null || xieshenPage.yztData == "err" || xieshenPage.kzyslsData == null) {
 			if (xieshenPage.yztData == "err") {//查询一张图的querytask执行失败
-				alert("一张图查询失败，请求方案无法执行")
+				alert("一张图查询失败，请求报告无法执行")
 			} else {
 				setTimeout(xieshenPage.queryReportFa, 1000);
 			}
 			return;
 		}
 		//道路、设施数据
-		var dlss = roadHelpWordJs.roadHelpWord(xieshenPage.faFwGeo, xieshenPage.mapOperator, xieshenPage.faDkGeoArr, xieshenPage.yztData, xieshenPage.rkxzData);
+		xieshenPage.dlss = roadHelpWordJs.roadHelpWord(xieshenPage.faFwGeo, xieshenPage.mapOperator, xieshenPage.faDkGeoArr, xieshenPage.yztData, xieshenPage.rkxzData, xieshenPage.ghrk);
 
 
 		/*var tcData = []
@@ -2689,12 +2763,22 @@ var xieshenPage = {
 		var roadData = '';
 		var sslsData = '';
 		try {
-			roadData = JSON.stringify(dlss.road);
-			sslsData = JSON.stringify(dlss.facilities);
+			roadData = JSON.stringify(xieshenPage.dlss.road);
+			sslsData = JSON.stringify(xieshenPage.dlss.facilities);
 		} catch (e) {
 			console.log(e);
 		}
-
+		//控制要素落实情况
+		var kzyslsqkData = '';
+		//土地利用总体规划
+		var tdlyztghData = '';
+		try {
+			kzyslsqkData = JSON.stringify(xieshenPage.kzyslsData.featureSituation);
+			var arr = [xieshenPage.kzyslsData.tgSituation.xmTotal, xieshenPage.kzyslsData.tgSituation.tjTotal];
+			tdlyztghData = JSON.stringify(arr);
+		} catch (e) {
+			console.log(e);
+		}
 
 		$.ajax({
 			type: "POST",
@@ -2704,7 +2788,9 @@ var xieshenPage = {
 				'xzxxData': xzxx,
 				'yztData': yztData,
 				"roadData": roadData,
-				"sslsData": sslsData
+				"sslsData": sslsData,
+				"kzyslsqkData": kzyslsqkData,
+				'tdlyztghData': tdlyztghData
 			},
 			dataType: "json",
 			async: true,
@@ -2715,14 +2801,15 @@ var xieshenPage = {
 					$(".faXq").hide()
 					$("#divXSYJD .content").html(response.Data);
 					$('.xieshenResultBox').show();
+
 					//展示的报告里包含的一些事件
+					xieshenPage.faClick();
 
 					xieshenPage.createGhfaMaps()
 				} else {
-					alert(response.Msg)
 					$(".transition-loader").hide()
+					alert(response.Msg)
 				}
-
 			},
 			error: function (err) {
 				$(".transition-loader").hide()
@@ -2735,9 +2822,9 @@ var xieshenPage = {
 	//在预览报告出来后，绑定事件
 	faClick: function () {
 		//标题输入框正在输入时/得到焦点/失去焦点时
-		$("#xmmcTitle").on('input focus blur', function () {
-			var txt = $('#xmmcTitle').val();
-			$("#xmmcDetail").html(txt);
+		$("#name").on('input focus blur', function () {
+			var txt = $('#name').val();
+			$("#newname").html(txt);
 		});
 
 		//成果深度下拉项选中
@@ -2745,6 +2832,21 @@ var xieshenPage = {
 			var opt = $("#cgsd").val();
 			$("#ghlx").html(opt);
 		});
+
+		//审查时间
+		//获取当前时间
+		var date = new Date();
+		var year = date.getFullYear();
+		var month = date.getMonth() + 1;
+		var day = date.getDate();
+		if (month < 10) {
+			month = "0" + month;
+		}
+		if (day < 10) {
+			day = "0" + day;
+		}
+		var nowDate = year + "年" + month + "月" + day + "日";
+		$("#scsj").html(nowDate);
 	},
 
 	//协审结果面板里图层点击，显示具体详情
@@ -2782,9 +2884,9 @@ var xieshenPage = {
 
 		//方案上传地地块显示
 		var scdk = $("input[id='scdk']").attr("checked")
-		if(scdk){
+		if (scdk) {
 			xieshenPage.mapOperator2.map.findLayerById('dk').opacity = 1
-		}else{
+		} else {
 			xieshenPage.mapOperator2.map.findLayerById('dk').opacity = 0
 		}
 
@@ -2976,7 +3078,7 @@ var xieshenPage = {
 										//用地代码转成英文
 										var pendingMc = features[i].xieshen.pendingdlmc
 										//展示为中文+用地代码
-										var lxmc = attrDictionary[pendingMc] ? attrDictionary[pendingMc] + "(" + pendingMc + ")" : pendingMc;
+										var lxmc = attrDictionary[pendingMc] ? pendingMc + "(" + attrDictionary[pendingMc] + ")" : pendingMc;
 										html += "<tr data-fid='" + i + "'>"
 										html += "<td>" + (i + 1) + "</td>"
 										html += "<td>" + lxmc + "</td>"
@@ -2984,7 +3086,7 @@ var xieshenPage = {
 
 										var ydxz = xieshenPage.attributes;//用地代码
 										//展示为中文+用地代码
-										var lx = attrDictionary[ydxz] ? attrDictionary[ydxz] + "(" + ydxz + ")" : ydxz;
+										var lx = attrDictionary[ydxz] ? ydxz + "(" + attrDictionary[ydxz] + ")" : ydxz;
 										if (i == 0) {
 											//用地代码不合并行不合并行
 											html += "<td class='hbTd' >" + lx + "</td>"
@@ -3267,7 +3369,7 @@ var xieshenPage = {
 			var zb = ((topObj[key].mj / fwArea) * 100).toFixed(2) + '%'; //百分符
 			var lx = "";
 			//用地类别代码转为中文
-			lx = attrDictionary[key] ? attrDictionary[key] + "(" + key + ")" : key;
+			lx = attrDictionary[key] ? key + "(" + attrDictionary[key] + ")" : key;
 
 			htmlStr += '<tr><td colspan="2">' + lx + '</td><td>' + topObj[key].mj.toFixed(2) + '</td><td>' + zb +
 				'</td></tr>';
@@ -3279,7 +3381,7 @@ var xieshenPage = {
 				var aRow = topObj[key].child[i];
 				var lxMc = "";
 				//用地类别代码转为中文，展示位中文+用地代码
-				lxMc = attrDictionary[aRow['lx']] ? attrDictionary[aRow['lx']] + "(" + aRow['lx'] + ")" : aRow['lx'];
+				lxMc = attrDictionary[aRow['lx']] ? aRow['lx'] + "(" + attrDictionary[aRow['lx']] + ")" : aRow['lx'];
 				if (i == 0) {
 					htmlStr += '<tr><td rowspan="' + row + '"></td>';
 					var zbstr = ((aRow['mj'] / fwArea) * 100).toFixed(2) + '%'; //百分符
@@ -3312,7 +3414,7 @@ var xieshenPage = {
 		for (var key in dealJson) {
 			var lx = "";
 			//用地类别代码转为中文
-			lx = attrDictionary[key] ? attrDictionary[key] + "(" + key + ")" : key;
+			lx = attrDictionary[key] ? key + "(" + attrDictionary[key] + ")" : key;
 			htmlStr += '<tr><td colspan="2">' + lx + '</td><td>' + dealJson[key].ymj + '</td><td>' + dealJson[key].yzb +
 				'</td><td>' + dealJson[key].xmj + '</td><td>' + dealJson[key].xzb + '</td><td>' + dealJson[key].bdz +
 				'</td></tr>';
@@ -3326,7 +3428,7 @@ var xieshenPage = {
 					var aRow = dealJson[key].child[i];
 					var lx = "";
 					//用地类别代码转为中文,展示为中文+用地代码
-					lx = attrDictionary[aRow.lx] ? attrDictionary[aRow.lx] + "(" + aRow.lx + ")" : aRow.lx;
+					lx = attrDictionary[aRow.lx] ? aRow.lx + "(" + attrDictionary[aRow.lx] + ")" : aRow.lx;
 					if (i == 0) {
 						htmlStr += '<tr><td rowspan="' + rowNum + '"></td>';
 						htmlStr += '<td>' + lx + '</td><td>' + aRow.ymj + '</td><td>' + aRow.yzb + '</td><td>' + aRow.xmj +
