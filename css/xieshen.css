@@ -2610,7 +2610,7 @@ li > i.false
 
     position: absolute;
     z-index: 6;
-    top: .2rem;
+    top: .5rem;
     right: .2rem;
 
     width: 1.12rem;
@@ -2626,7 +2626,7 @@ li > i.false
 
     color: #0ff;
     border: 1px solid #0ff;
-    outline: none;
+    border-top: none;
     outline: none;
 
 /*border-radius: 0.05rem;*/
@@ -2679,7 +2679,7 @@ li > i.false
 
     color: #0ff;
     border: 1px solid #0ff;
-    outline: none;
+    border-bottom: none;
     outline: none;
 
 /*border-radius: 0.05rem;*/
@@ -2719,7 +2719,7 @@ li > i.false
 
     position: absolute;
     z-index: 6;
-    top: calc(.5rem - 1px);
+    top: calc(.8rem - 1px);
     right: .2rem;
 
     width: 1.05rem;
