@@ -10,10 +10,10 @@ var roadHelpWordJs = {
         "U": true,
         "G": true
     },
-	roadHelpWord: function (geo, mapO,faDkGeoArr,yztData,rkxzData,rk) {
+	roadHelpWord: function (geo, mapO,faDkGeoArr,yztFeatures,rkxzData,rk) {
             roadHelpWordJs.rk = rk
             roadHelpWordJs.faDkGeoArr=faDkGeoArr
-            roadHelpWordJs.yztData = yztData
+            roadHelpWordJs.yztFeatures = yztFeatures
             roadHelpWordJs.rkxzData=rkxzData
 			roadHelpWordJs.mapOperator = mapO
             roadHelpWordJs.geo = geo
@@ -75,7 +75,7 @@ var roadHelpWordJs = {
             }
             
 
-            if(attr3=="A33" && attr2 !="A335"){
+            if(attr3=="A33"){
                 A33.num++
                 A33.area+=roadHelpWordJs.faDkGeoArr[i].ydmj
             }
@@ -120,7 +120,8 @@ var roadHelpWordJs = {
     },
 	facilitiesFun:function(){
 		var dictionary=roadHelpWordJs.yztDictionary
-        var yztData=roadHelpWordJs.yztData.yzt
+        var yztFeatures=roadHelpWordJs.yztFeatures
+        //var range = Math.abs(featureHelpWordJs.mapOperator.types.geoEngine.planarArea(featureHelpWordJs.geo, "hectares"));
         var A33={
             num:0,
             area:0
@@ -141,35 +142,39 @@ var roadHelpWordJs = {
             num:0,
             area:0
         }
-        for(let key in yztData) {
-            var lsStr=dictionary[key]
+        for(let i = 0; i < yztFeatures.length; i++) {
+            var lsStr=dictionary[yztFeatures[i].attributes["用地性质"]]
             if(lsStr){
+                var intersect_geo = roadHelpWordJs.mapOperator.types.geoEngine.intersect(roadHelpWordJs.geo, yztFeatures[i].geometry);
+                var intersect_mj = roadHelpWordJs.mapOperator.types.geoEngine.planarArea(intersect_geo, 'hectares');
                 var attr2=lsStr.substr(0, 2)
                 var attr3=lsStr.substr(0, 3)
-                if(attr3=="A33" && attr2 !="A335"){
+                if(attr3=="A33"){
                     A33.num++
-                    A33.area+=yztData[key]
+                    A33.area+=intersect_mj
                 }
 
                 if(attr2=="A5"){
                     A5.num++
-                    A5.area+=yztData[key]
+                    A5.area+=intersect_mj
                 }
 
                 if(attr2=="A6"){
                     A6.num++
-                    A6.area+=yztData[key]
+                    A6.area+=intersect_mj
                 }
 
                 if(attr2=="A4"){
                     A4.num++
-                    A4.area+=yztData[key]
+                    A4.area+=intersect_mj
                 }
 
                 if(attr2=="A2"){
                     A2.num++
-                    A2.area+=yztData[key]
+                    A2.area+=intersect_mj
                 }
+            }else{
+                console.log(key)
             }
             
         }

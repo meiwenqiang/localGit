@@ -29,6 +29,7 @@ var xieshenPage = {
 
 	rkxzData: null,//查询人口现状信息
 	yztData: null, //一张图查询信息
+	yztFeatures: null, //一张图查询的要素结果
 	kzyslsData: null, //控制要素落实信息
 	dlss:null,//道路设施数据
 
@@ -2105,6 +2106,7 @@ var xieshenPage = {
 	//规划方案里查询一张图信息
 	faYztQuery: function () {
 		xieshenPage.yztData = null;
+		xieshenPage.yztFeatures = null;
 		var queryTask = new xieshenPage.mapOperator.types.QueryTask({
 			url: yztUrl,//config.js里配置
 		});
@@ -2116,8 +2118,8 @@ var xieshenPage = {
 		que.outFields = [yztAttr]; //yztAttr在config.js里配置
 		try {
 			queryTask.execute(que).then((response) => {
-				var data = response.features;
-				var yztJsonData = xieshenPage.dealYztData(data);
+				xieshenPage.yztFeatures = response.features;
+				var yztJsonData = xieshenPage.dealYztData(response.features);
 
 				var dkDataJson = xieshenPage.dealFaData();
 				var dataAll = {};
@@ -2130,9 +2132,11 @@ var xieshenPage = {
 			}, (err) => {
 				console.log(err);
 				xieshenPage.yztData = "err";
+				xieshenPage.yztFeatures = null;
 			});
 		} catch (error) {
 			xieshenPage.yztData = "err";
+			xieshenPage.yztFeatures = null;
 			console.log(error);
 		}
 	},
@@ -2190,9 +2194,10 @@ var xieshenPage = {
 	},
 	//处理合并一张图结果数据
 	dealYztData: function (data) {
+		var obj = {};
+		var totalArea = 0;
 		if (data.length && data.length > 0) {
-			var obj = {};
-			var totalArea = 0;
+			
 			try {
 				for (var i = 0; i < data.length; i++) {
 					var ydxzCode = data[i].attributes[yztAttr]; //yztAttr在config.js里配置
@@ -2233,8 +2238,9 @@ var xieshenPage = {
 			}
 			console.log(obj);
 			console.log(totalArea);
-			return obj;
+			
 		}
+		return obj;
 	},
 
 	//规划方案协审规则查询
@@ -2706,7 +2712,7 @@ var xieshenPage = {
 			return;
 		}
 		//道路、设施数据
-		xieshenPage.dlss = roadHelpWordJs.roadHelpWord(xieshenPage.faFwGeo, xieshenPage.mapOperator, xieshenPage.faDkGeoArr, xieshenPage.yztData, xieshenPage.rkxzData, xieshenPage.ghrk);
+		xieshenPage.dlss = roadHelpWordJs.roadHelpWord(xieshenPage.faFwGeo, xieshenPage.mapOperator, xieshenPage.faDkGeoArr, xieshenPage.yztFeatures, xieshenPage.rkxzData, xieshenPage.ghrk);
 
 
 		/*var tcData = []
