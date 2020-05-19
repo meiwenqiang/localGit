@@ -175,7 +175,7 @@ var ctcxHelpWordJs = {
 		},
 		"土地信息": {
 			"gy": {
-				"url": "http://tdxx.wpl:6080/arcgis/rest/services/FZSYS/tdgy/MapServer",
+				"url": "http://whgis.wpl:8010/ServiceAdapter/MAP/土地供应/5606b7d46861a2078fd4a6369ff2ea6c",
 				"layerIds": [
 					0
 				],

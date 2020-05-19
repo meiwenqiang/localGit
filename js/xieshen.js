@@ -2049,7 +2049,8 @@ var xieshenPage = {
 		//绑定点击事件
 		$("#ghfaMb .attrList li").click(function (event) {
 			$(".attrList").hide();
-
+			//选择的下拉项
+			var attr = $(this).text();
 			if (dkFeaArr) { //渲染多个地块
 				if (dkFeaArr[0].properties[$(this).text()]) {
 					xieshenPage.faDkGeoArr = []
@@ -2077,7 +2078,7 @@ var xieshenPage = {
 							'用地性质': ydType,
 							'ydmj': ydflMj
 						}
-						lslsAttr[xieshenPage.attrFa] = ydType
+						lslsAttr[attr] = ydType
 						xieshenPage.faDkGeoArr.push(lslsAttr);
 					}
 				} else {
@@ -2085,7 +2086,7 @@ var xieshenPage = {
 					return
 				}
 
-			}
+			}			
 			$("#ghfaMb #attr span").html($(this).text());
 			$("#ghfaMb #attr span").attr("title", $(this).text());
 		});
@@ -3010,6 +3011,8 @@ var xieshenPage = {
 				$(".faXq .tableDiv").hide()
 				$(".faXq .fxTableDiv").show()
 				break;
+			}else{
+				xieshenPage.fxGeo = null;
 			}
 		}
 		xieshenPage.mapOperator2.polygonColorGraphAdd(xieshenPage.fxGeo, [255, 255, 255, 1], [0, 255, 255], 3, {
